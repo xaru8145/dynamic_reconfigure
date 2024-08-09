@@ -216,15 +216,18 @@ private:
     boost::recursive_mutex::scoped_lock lock(mutex_);
 
     ConfigType new_config = config_;
-    new_config.__fromMessage__(req.config);
-    new_config.__clamp__();
-    uint32_t level = config_.__level__(new_config);
+    bool success = new_config.__fromMessage__(req.config);
+    if(success)
+    {
+     new_config.__clamp__();
+     uint32_t level = config_.__level__(new_config);
 
-    callCallback(new_config, level);
+     callCallback(new_config, level);
 
-    updateConfigInternal(new_config);
-    new_config.__toMessage__(rsp.config);
-    return true;
+     updateConfigInternal(new_config);
+     new_config.__toMessage__(rsp.config);
+    }
+    return success;
   }
 
   void updateConfigInternal(const ConfigType &config)
